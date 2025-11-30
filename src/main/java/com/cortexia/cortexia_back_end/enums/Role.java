@@ -1,7 +1,13 @@
-package com.cortexia.support.entity;
+package com.cortexia.cortexia_back_end.enums;
 
-public enum Role {
-    MANAGER,
-    TECHNICIAN,
-    CLIENT
+import org.springframework.security.core.GrantedAuthority;
+
+public enum Role implements GrantedAuthority {
+    ADMIN,
+    USER;
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 }

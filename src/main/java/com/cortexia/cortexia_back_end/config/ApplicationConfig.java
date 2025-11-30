@@ -1,6 +1,7 @@
-package com.cortexia.support.config;
+package com.cortexia.cortexia_back_end.config;
 
-import com.cortexia.support.repository.UserRepository;
+
+import com.cortexia.cortexia_back_end.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
