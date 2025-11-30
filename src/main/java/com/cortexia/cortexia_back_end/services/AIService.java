@@ -1,36 +1,52 @@
-package com.cortexia.support.service;
+package com.cortexia.cortexia_back_end.services;
 
-import com.cortexia.support.repository.KnowledgeBaseRepository;
+import com.cortexia.cortexia_back_end.models.MensagemModel;
+import com.cortexia.cortexia_back_end.repositories.MensagemRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AIService {
 
-    private final KnowledgeBaseRepository knowledgeRepository;
+    private final MensagemRepository mensagemRepository;
+    private final TecnicoService technicianService;
 
-    // --- CONSTRUTOR MANUAL (Sem Lombok) ---
-    public AIService(KnowledgeBaseRepository knowledgeRepository) {
-        this.knowledgeRepository = knowledgeRepository;
-    }
-
-    // 1. Tenta resolver buscando no banco de conhecimento
-    public String attemptResolution(String description) {
-        List<KnowledgeBase> knowledge = knowledgeRepository.findSimilarProblems(description);
-
-        if (!knowledge.isEmpty()) {
-            return knowledge.get(0).getSolution(); // Agora funciona pois criamos o Getter
+    // MOCK: tenta encontrar resposta na "knowledge base"
+    private Optional<String> searchKnowledgeBase(String texto) {
+        // Exemplo simples: if contains 'senha' devolve resposta, etc.
+        String lower = texto.toLowerCase();
+        if (lower.contains("senha")) {
+            return Optional.of("Verifique a política de senha: redefina via portal em Portal > Redefinir senha.");
         }
-        return null;
+        // não encontrou
+        return Optional.empty();
     }
 
-    // 2. Aprende com a solução do técnico
-    public void learn(String problem, String solution) {
-        // --- CRIAÇÃO MANUAL (Sem Builder) ---
-        KnowledgeBase newKnowledge = new KnowledgeBase();
-        newKnowledge.setProblemPattern(problem);
-        newKnowledge.setSolution(solution);
-
-        knowledgeRepository.save(newKnowledge);
+    @Transactional
+    public void processUserMessage(Long chamadoId, MensagemModel userMessage) {
+        var maybe = searchKnowledgeBase(userMessage.getConteudo());
+        if (maybe.isPresent()) {
+            MensagemModel ai = MensagemModel.builder()
+                    .chamadoId(chamadoId)
+                    .conteudo(maybe.get())
+                    .autor("AI")
+                    .criadoEm(OffsetDateTime.now())
+                    .build();
+            mensagemRepository.save(ai);
+        } else {
+            MensagemModel system = MensagemModel.builder()
+                    .chamadoId(chamadoId)
+                    .conteudo("A IA não encontrou uma resposta adequada. Encaminhando para um técnico. ✅")
+                    .autor("SYSTEM")
+                    .criadoEm(OffsetDateTime.now())
+                    .build();
+            mensagemRepository.save(system);
+            technicianService.notifyEscalation(chamadoId, userMessage);
+        }
     }
 }
