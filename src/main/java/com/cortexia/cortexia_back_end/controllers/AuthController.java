@@ -2,11 +2,7 @@ package com.cortexia.support.controller;
 
 import com.cortexia.support.config.JwtService;
 import com.cortexia.support.entity.Role;
-import com.cortexia.support.entity.User;
 import com.cortexia.support.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

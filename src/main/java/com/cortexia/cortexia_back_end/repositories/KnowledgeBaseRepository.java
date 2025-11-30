@@ -1,6 +1,5 @@
 package com.cortexia.support.repository;
 
-import com.cortexia.support.entity.KnowledgeBase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.cortexia.support.repository;
 
-import com.cortexia.support.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

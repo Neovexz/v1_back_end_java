@@ -1,6 +1,5 @@
 package com.cortexia.support.controller;
 
-import com.cortexia.support.entity.Ticket;
 import com.cortexia.support.service.TicketService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

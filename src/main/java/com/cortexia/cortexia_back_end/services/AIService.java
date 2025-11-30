@@ -1,6 +1,5 @@
 package com.cortexia.support.service;
 
-import com.cortexia.support.entity.KnowledgeBase;
 import com.cortexia.support.repository.KnowledgeBaseRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
