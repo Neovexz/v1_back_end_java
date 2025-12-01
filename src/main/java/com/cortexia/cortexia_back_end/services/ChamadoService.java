@@ -24,6 +24,9 @@ public class ChamadoService {
     private final ChamadoRepository repository;
     private final MensagemService mensagemService;
 
+    // =======================================================
+    // CRIAR CHAMADO
+    // =======================================================
     @Transactional
     public ChamadoResponse criar(ChamadoCreateDto dto) {
 
@@ -39,36 +42,37 @@ public class ChamadoService {
                 .atualizadoEm(OffsetDateTime.now())
                 .build();
 
-        // Salva garantindo ID já disponível
         repository.saveAndFlush(chamado);
 
-        // ---------- MENSAGEM INICIAL DO CHAT ----------
+        // ------------------------------------------------------------
+        // MENSAGEM INICIAL LIMPA E FORMATADA
+        // ------------------------------------------------------------
         String inicial = """
-✨ **Chamado criado com sucesso!**
+✨ Chamado criado com sucesso!
 
 Aqui estão os detalhes registrados:
 
-📌 **Informações**
-• **Título:** %s
-• **Prioridade:** %s
-• **Impacto:** %s
-• **Categoria:** %s
-• **Local:** %s
+📌 Informações
+• Título: %s
+• Prioridade: %s
+• Impacto: %s
+• Categoria: %s
+• Local: %s
 
-📝 **Descrição fornecida**
+📝 Descrição
 %s
 
 Se precisar, envie mensagens, imagens ou mais detalhes por aqui.
 """.formatted(
                 chamado.getTitulo(),
-                chamado.getPrioridade(),
-                chamado.getImpacto(),
-                chamado.getCategoria(),
+                prioridadeToLabel(chamado.getPrioridade()),
+                impactoToLabel(chamado.getImpacto()),
+                categoriaToLabel(chamado.getCategoria()),
                 chamado.getLocal(),
                 chamado.getDescricao()
         );
 
-        // cria primeira mensagem automática
+
         mensagemService.criar(
                 chamado.getId(),
                 new MensagemCreateDto(inicial, "SYSTEM")
@@ -76,6 +80,42 @@ Se precisar, envie mensagens, imagens ou mais detalhes por aqui.
 
         return toResponse(chamado);
     }
+
+    // =======================================================
+    // ENUMS → TEXTO LEGÍVEL
+    // =======================================================
+
+    private String prioridadeToLabel(Prioridade p) {
+        return switch (p) {
+            case BAIXA -> "Baixa";
+            case MEDIA -> "Média";
+            case ALTA -> "Alta";
+            case CRITICA -> "Crítica";
+        };
+    }
+
+    private String impactoToLabel(Impacto i) {
+        return switch (i) {
+            case UMA_PESSOA -> "Individual";
+            case UM_SETOR -> "Um setor";
+            case EMPRESA_INTEIRA -> "Toda a empresa";
+            default -> "Desconhecido";
+        };
+    }
+
+    private String categoriaToLabel(Categoria c) {
+        return switch (c) {
+            case SOFTWARE -> "Sistema";
+            case HARDWARE -> "Computador";
+            case REDE -> "Rede";
+            case OUTROS -> "Outros";
+            default -> "Desconhecido";
+        };
+    }
+
+    // =======================================================
+    // CONSULTAS
+    // =======================================================
 
     @Transactional(readOnly = true)
     public ChamadoResponse buscar(Long id) {
@@ -89,6 +129,10 @@ Se precisar, envie mensagens, imagens ou mais detalhes por aqui.
         return repository.findAll(pageable).map(this::toResponse);
     }
 
+    // =======================================================
+    // STATUS
+    // =======================================================
+
     @Transactional
     public ChamadoResponse atualizarStatus(Long id, StatusChamado status) {
 
@@ -97,17 +141,33 @@ Se precisar, envie mensagens, imagens ou mais detalhes por aqui.
 
         chamado.setStatus(status);
         chamado.setAtualizadoEm(OffsetDateTime.now());
-
         repository.save(chamado);
 
         return toResponse(chamado);
     }
 
+    // =======================================================
+    // ATRIBUIR TÉCNICO (SEM MEXER NO STATUS)
+    // =======================================================
+
+    @Transactional
+    public void atribuirTecnico(Long chamadoId, Long tecnicoId) {
+        ChamadoModel chamado = repository.findById(chamadoId)
+                .orElseThrow(() -> new NotFoundException("Chamado não encontrado: " + chamadoId));
+
+        chamado.setTecnicoId(tecnicoId);
+        chamado.setAtualizadoEm(OffsetDateTime.now());
+        repository.save(chamado);
+    }
+
+    // =======================================================
+    // HELPERS
+    // =======================================================
+
     private <T extends Enum<T>> T convert(Class<T> enumClass, String value, String campo) {
         if (value == null || value.isBlank()) {
             throw new BadRequestException("O campo '" + campo + "' é obrigatório.");
         }
-
         try {
             return Enum.valueOf(enumClass, value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {

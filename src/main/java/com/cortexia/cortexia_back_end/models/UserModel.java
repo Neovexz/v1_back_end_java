@@ -14,15 +14,17 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder    // <-------------------- ESSENCIAL
+@Builder
 public class UserModel implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String nome;
+
     @Column(unique = true)
-    private String username;
+    private String email;
 
     private String password;
 
@@ -35,6 +37,7 @@ public class UserModel implements UserDetails {
         return List.of(role);
     }
 
+    @Override public String getUsername() { return email; } // login por email
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }

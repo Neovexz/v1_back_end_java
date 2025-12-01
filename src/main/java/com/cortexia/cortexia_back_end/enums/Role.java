@@ -3,8 +3,9 @@ package com.cortexia.cortexia_back_end.enums;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
-    ADMIN,
-    USER;
+    USER,
+    TECNICO,
+    ADMIN;
 
     @Override
     public String getAuthority() {
