@@ -1,11 +1,11 @@
 package com.cortexia.cortexia_back_end.enums;
 
 public enum Categoria {
-    ACESSO,
-    REDE,
-    HARDWARE,
-    SOFTWARE,
-    EMAIL,
+    OUTROS,
     IMPRESSORA,
-    OUTROS
-    }
+    EMAIL,
+    SOFTWARE,
+    HARDWARE,
+    REDE,
+    ACESSO
+}

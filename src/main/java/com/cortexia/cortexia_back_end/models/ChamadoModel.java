@@ -45,6 +45,9 @@ public class ChamadoModel {
     @Column(nullable = false, length = 20)
     private StatusChamado status;
 
+    @Column(name = "tecnico_id")
+    private Long tecnicoId;
+
     @Column(nullable = false)
     private OffsetDateTime criadoEm;
 

@@ -1,6 +1,5 @@
 package com.cortexia.cortexia_back_end.config;
 
-
 import com.cortexia.cortexia_back_end.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,21 +17,24 @@ public class ApplicationConfig {
 
     private final UserRepository repository;
 
-    // Construtor manual (Já que o Lombok estava dando trabalho)
     public ApplicationConfig(UserRepository repository) {
         this.repository = repository;
     }
 
+    // =======================================
+    // LOGIN AGORA É POR EMAIL
+    // =======================================
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> repository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return email ->
+                repository.findByEmail(email)
+                        .orElseThrow(() -> new UsernameNotFoundException("Email não encontrado"));
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService()); // Agora vai funcionar!
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
